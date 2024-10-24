@@ -30,20 +30,20 @@ def extract_date(date_str):
         return f"{year}/{month}/{day}"
     return ""
 
-# Define a function to scrape questions and dates
-def scrape_questions_and_dates():
+# Define a function to scrape comments and dates
+def scrape_comments_and_dates():
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, 'html.parser')
-    questions = soup.select(".m_feed_detail.m_qa_detail .m_feed_txt")
+    comments = soup.select(".m_feed_detail.m_qa_detail .m_feed_txt")
     dates = soup.select(".m_feed_from span")
 
-    questions_and_dates = []
-    for question, date in zip(questions, dates):
-        question_text = question.text.strip(":")  # Remove colon from the beginning of question text
+    comments_and_dates = []
+    for comment, date in zip(comments, dates):
+        comment_text = comment.text.strip(":")  # Remove colon from the beginning of comment text
         date_text = extract_date(date.text)
-        questions_and_dates.append((question_text, date_text))
+        comments_and_dates.append((comment_text, date_text))
     
-    return questions_and_dates
+    return comments_and_dates
 
 # Define a function to get the last page number
 def get_last_page_number():
@@ -65,8 +65,8 @@ for company_code in company_codes:
     company_input.send_keys(company_code)
 
     # Use JavaScript to directly set the date values
-    start_date = "2010-01-01"
-    end_date = "2024-06-30"
+    start_date = "xxxx-xx-xx"
+    end_date = "xxxx-xx-xx"
     driver.execute_script(f"document.getElementById('sdate').value = '{start_date}'")
     driver.execute_script(f"document.getElementById('edate').value = '{end_date}'")
 
@@ -83,13 +83,13 @@ for company_code in company_codes:
         print(f"Error: {e}")
         continue
 
-    time.sleep(2)  # Wait for more questions to load
+    time.sleep(2)  # Wait for more comments to load
 
-    # Initialize a list to store all questions and dates
-    all_questions_and_dates = []
+    # Initialize a list to store all comments and dates
+    all_comments_and_dates = []
 
-    # Scrape questions and dates from the first page
-    all_questions_and_dates.extend(scrape_questions_and_dates())
+    # Scrape comments and dates from the first page
+    all_comments_and_dates.extend(scrape_comments_and_dates())
 
     # Get the last page number
     last_page_number = get_last_page_number()
@@ -103,18 +103,18 @@ for company_code in company_codes:
             )
             driver.execute_script("arguments[0].click();", page)
 
-            # Scrape questions and dates from the current page and add them to the list
-            all_questions_and_dates.extend(scrape_questions_and_dates())
+            # Scrape comments and dates from the current page and add them to the list
+            all_comments_and_dates.extend(scrape_comments_and_dates())
         except Exception as e:
             print(f"Error on page {i} for company {company_code}: {e}")
             break
 
-    # Save all questions and dates into an Excel file named after the company code
-    df = pd.DataFrame(all_questions_and_dates, columns=["Question", "Date"])
+    # Save all comments and dates into an Excel file named after the company code
+    df = pd.DataFrame(all_comments_and_dates, columns=["comment", "Date"])
     df.insert(0, "Company Code", company_code)  # Insert company code as the first column
     df.to_excel(f"/Desktop/shanghai_stock_exchange/{company_code}.xlsx", index=False)
 
-    print(f"All questions and dates for company code {company_code} have been saved to /Desktop/shanghai_stock_exchange/{company_code}.xlsx.")
+    print(f"All comments and dates for company code {company_code} have been saved to /Desktop/shanghai_stock_exchange/{company_code}.xlsx.")
 
 # Close the browser
 driver.quit()
