@@ -15,4 +15,4 @@ It does so by:
 
 
 Based on the launch dates of the two interactive platforms, we scraped the question texts up to June 2024, resulting in over 4,000,000 entries. After further data cleaning, the results are shown as illustrated below.
-![image]([https://github.com/claire000501/Investor_Comments_Scraper/blob/main/results_example.png)](https://github.com/claire000501/Investor_Comments_Scraper)
+![image]([[https://github.com/claire000501/Investor_Comments_Scraper/blob/main/results_example.png](https://github.com/claire000501/Investor_Comments_Scraper/blob/main/results_example.png))
