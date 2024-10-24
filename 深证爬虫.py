@@ -9,16 +9,16 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import pandas as pd
 
-# 读取Excel文件中的代码
-code = pd.read_excel('深证.xlsx', header=0, dtype=str)
-code['代码'] = code['代码'].str.replace('.SZ', '')
-code_list = code['代码'].tolist()
+# Read the codes from the Excel file
+code = pd.read_excel('SZ.xlsx', header=0, dtype=str)
+code['Code'] = code['Code'].str.replace('.SZ', '')
+code_list = code['Code'].tolist()
 
-# 确保结果文件夹存在
-if not os.path.exists('结果'):
-    os.makedirs('结果')
+# Ensure the result folder exists
+if not os.path.exists('Results'):
+    os.makedirs('Results')
 
-# 初始化Chrome浏览器
+# Initialize Chrome browser
 opt = ChromeOptions()
 opt.headless = True
 driver = webdriver.Chrome(options=opt)
@@ -27,113 +27,113 @@ total_questions = 0
 
 def process_code(code, start_date, end_date):
     global total_questions
-    print(f'处理代码: {code}...')
+    print(f'Processing code: {code}...')
     driver.get("https://irm.cninfo.com.cn/views/interactiveAnswer")
 
-    # 等待“快速查询”按钮出现并点击
+    # Wait for the "Quick Search" button to appear and click
     query_button = WebDriverWait(driver, 100).until(
-        EC.element_to_be_clickable((By.CLASS_NAME, 'kscx_dig'))  # 更改为实际的按钮选择器
+        EC.element_to_be_clickable((By.CLASS_NAME, 'kscx_dig'))  # Change to actual button selector
     )
     query_button.click()
 
-    # 等待查询框出现
+    # Wait for the search box to appear
     search_box = WebDriverWait(driver, 100).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, 'input.el-input__inner[placeholder="代码简称"]'))  # 更改为实际的查询框选择器
+        EC.presence_of_element_located((By.CSS_SELECTOR, 'input.el-input__inner[placeholder="Code Abbreviation"]'))  # Change to actual search box selector
     )
 
-    # 在查询框中输入内容
+    # Input the search query
     search_query = code
     search_box.send_keys(search_query)
 
-    # 等待日期输入框出现并设置日期
+    # Wait for the date input boxes to appear and set dates
     start_date_box = WebDriverWait(driver, 100).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, 'input[placeholder="开始日期"]'))  # 更改为实际的开始日期输入框选择器
+        EC.presence_of_element_located((By.CSS_SELECTOR, 'input[placeholder="Start Date"]'))  # Change to actual start date input box selector
     )
     end_date_box = WebDriverWait(driver, 100).until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, 'input[placeholder="结束日期"]'))  # 更改为实际的结束日期输入框选择器
+        EC.presence_of_element_located((By.CSS_SELECTOR, 'input[placeholder="End Date"]'))  # Change to actual end date input box selector
     )
     start_date_box.send_keys(start_date)
     end_date_box.send_keys(end_date)
 
-    # 提交查询
+    # Submit the query
     submit_button = WebDriverWait(driver, 100).until(
-        EC.element_to_be_clickable((By.XPATH, '//button[span="确定"]'))  # 更改为实际的提交按钮选择器
+        EC.element_to_be_clickable((By.XPATH, '//button[span="Confirm"]'))  # Change to actual submit button selector
     )
     submit_button.click()
 
-    # 等待几秒钟让页面加载（视情况而定）
+    # Wait a few seconds for the page to load (adjust as needed)
     time.sleep(2)
 
-    # 获取总页数
+    # Get total number of pages
     pagination = WebDriverWait(driver, 100).until(
         EC.presence_of_element_located((By.CLASS_NAME, 'el-pagination'))
     )
     total_pages = int(pagination.find_elements(By.CLASS_NAME, 'number')[-1].text)
 
-    # 创建CSV文件并写入数据
-    output_file_path = os.path.join('结果', f'{code}.csv')
+    # Create a CSV file and write the data
+    output_file_path = os.path.join('Results', f'{code}.csv')
     with open(output_file_path, mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
-        writer.writerow(['代码', '提问', '回复时间'])
+        writer.writerow(['Code', 'Question', 'Reply Time'])
 
-        # 用于存储已经处理过的提问组合
+        # To store already processed questions
         processed_questions = set()
 
         for page in range(1, total_pages + 1):
-            # 等待当前页面加载完成
+            # Wait for the current page to fully load
             time.sleep(0.5)
 
-            # 获取当前页的网页源代码
+            # Get the current page source
             page_source = driver.page_source
 
-            # 使用BeautifulSoup解析网页内容
+            # Parse the page content using BeautifulSoup
             soup = BeautifulSoup(page_source, 'html.parser')
 
-            # 找到所有问答块
+            # Find all question blocks
             question_blocks = soup.find_all('div', class_='f14 overhide mt_20')
 
             for block in question_blocks:
-                # 获取提问内容
+                # Get the question content
                 question_element = block.find('div', class_='question-content')
                 question = question_element.text.strip() if question_element else 'N/A'
 
-                # 如果提问已经存在，则跳过
+                # Skip if the question has already been processed
                 if question in processed_questions:
                     continue
 
-                # 获取深市代码
+                # Get the stock code
                 stock_code_element = block.find('span', class_='company-code')
                 stock_code = stock_code_element.text.strip() if stock_code_element else 'N/A'
 
-                # 获取提问时间
+                # Get the reply time
                 question_time_element = block.find('span', class_='question-time')
                 reply_time = question_time_element.text.strip() if question_time_element else 'N/A'
 
-                # 写入CSV文件
+                # Write to the CSV file
                 writer.writerow([stock_code, question, reply_time])
                 total_questions += 1
 
-                # 将提问加入集合
+                # Add the question to the set
                 processed_questions.add(question)
 
-            print(f'已处理第 {page} 页，总页数: {total_pages}')
-            # 如果有下一页按钮，则点击下一页
+            print(f'Processed page {page}, total pages: {total_pages}')
+            # Click the "Next Page" button if it exists
             next_button = driver.find_element(By.CLASS_NAME, 'btn-next')
             if next_button.is_enabled():
                 next_button.click()
             else:
                 break
 
-    print(f'数据已保存到 {output_file_path} 文件中')
+    print(f'Data saved to {output_file_path}')
 
-# 调用函数处理每年数据
+# Call the function to process data for each year
 for idx, code in enumerate(code_list):
     for year in range(2010, 2024):
         start_date = f'{year}-01-01'
         end_date = f'{year}-06-30'
         process_code(code, start_date, end_date)
         
-# 关闭浏览器
+# Close the browser
 driver.quit()
 
-print(f'一共收集到了 {total_questions} 条问答')
+print(f'Total questions collected: {total_questions}')
