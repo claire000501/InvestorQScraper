@@ -23,10 +23,10 @@ opt = ChromeOptions()
 opt.headless = True
 driver = webdriver.Chrome(options=opt)
 
-total_questions = 0
+total_comments = 0
 
 def process_code(code, start_date, end_date):
-    global total_questions
+    global total_comments
     print(f'Processing code: {code}...')
     driver.get("https://irm.cninfo.com.cn/views/interactiveAnswer")
 
@@ -74,10 +74,10 @@ def process_code(code, start_date, end_date):
     output_file_path = os.path.join('Results', f'{code}.csv')
     with open(output_file_path, mode='w', newline='', encoding='utf-8-sig') as file:
         writer = csv.writer(file)
-        writer.writerow(['Code', 'Question', 'Reply Time'])
+        writer.writerow(['Code', 'comment', 'release Time'])
 
-        # To store already processed questions
-        processed_questions = set()
+        # To store already processed comments
+        processed_comments = set()
 
         for page in range(1, total_pages + 1):
             # Wait for the current page to fully load
@@ -89,32 +89,32 @@ def process_code(code, start_date, end_date):
             # Parse the page content using BeautifulSoup
             soup = BeautifulSoup(page_source, 'html.parser')
 
-            # Find all question blocks
-            question_blocks = soup.find_all('div', class_='f14 overhide mt_20')
+            # Find all comment blocks
+            comment_blocks = soup.find_all('div', class_='f14 overhide mt_20')
 
-            for block in question_blocks:
-                # Get the question content
-                question_element = block.find('div', class_='question-content')
-                question = question_element.text.strip() if question_element else 'N/A'
+            for block in comment_blocks:
+                # Get the comment content
+                comment_element = block.find('div', class_='comment-content')
+                comment = comment_element.text.strip() if comment_element else 'N/A'
 
-                # Skip if the question has already been processed
-                if question in processed_questions:
+                # Skip if the comment has already been processed
+                if comment in processed_comments:
                     continue
 
                 # Get the stock code
                 stock_code_element = block.find('span', class_='company-code')
                 stock_code = stock_code_element.text.strip() if stock_code_element else 'N/A'
 
-                # Get the reply time
-                question_time_element = block.find('span', class_='question-time')
-                reply_time = question_time_element.text.strip() if question_time_element else 'N/A'
+                # Get the release time
+                comment_time_element = block.find('span', class_='comment-time')
+                release_time = comment_time_element.text.strip() if comment_time_element else 'N/A'
 
                 # Write to the CSV file
-                writer.writerow([stock_code, question, reply_time])
-                total_questions += 1
+                writer.writerow([stock_code, comment, release_time])
+                total_comments += 1
 
-                # Add the question to the set
-                processed_questions.add(question)
+                # Add the comment to the set
+                processed_comments.add(comment)
 
             print(f'Processed page {page}, total pages: {total_pages}')
             # Click the "Next Page" button if it exists
@@ -128,12 +128,12 @@ def process_code(code, start_date, end_date):
 
 # Call the function to process data for each year
 for idx, code in enumerate(code_list):
-    for year in range(2010, 2024):
-        start_date = f'{year}-01-01'
-        end_date = f'{year}-06-30'
+    for year in range(xxxx, xxxx):
+        start_date = f'{year}-xx-xx'
+        end_date = f'{year}-xx-xx'
         process_code(code, start_date, end_date)
         
 # Close the browser
 driver.quit()
 
-print(f'Total questions collected: {total_questions}')
+print(f'Total comments collected: {total_comments}')
