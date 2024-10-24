@@ -6,7 +6,7 @@ Shanghai Stock Exchange: http://sns.sseinfo.com
   
 This project uses web automation to simulate a human interacting with the website.   
 It does so by:  
-1.Simulating a web browser using Selenium, which automates the Chrome browser to interact with the CNINFO platform. Selenium allows the script to:  
+1.Simulating a web browser using Selenium, which automates the Chrome browser to interact with the platforms. Selenium allows the script to:  
   ·Open the web page.  
   ·Click buttons.  
   ·Enter text into search boxes.  
