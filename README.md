@@ -14,6 +14,6 @@ It does so by:
 2.Extracting the HTML content of the loaded pages using BeautifulSoup, which is a Python library for parsing HTML and XML documents. Once Selenium loads the page, BeautifulSoup is used to locate and extract specific elements (like comments, stock codes, and release times) from the page's source code.  
 
 
-Based on the launch dates of the two interactive platforms, we scraped the question texts up to June 2024, resulting in over 4,000,000 entries. After further data cleaning, the results are shown as illustrated below, including three columns: company code, comments, and date.  
+Based on the launch dates of the two interactive platforms, we scraped the question texts up to June 2024. Each company has a separate file containing three columns: company code, comment, and date. A total of over 4 million entries were collected. After further data cleaning, a portion of the results for one of the companies is shown below：
 
 ![image](https://github.com/claire000501/Investor_Comments_Scraper/blob/main/Results_Example.png)
