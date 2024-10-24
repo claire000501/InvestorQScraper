@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 # Read the codes from the Excel file
-code = pd.read_excel('SZ.xlsx', header=0, dtype=str)
+code = pd.read_excel('shenzhen_stock_exchange.xlsx', header=0, dtype=str)
 code['Code'] = code['Code'].str.replace('.SZ', '')
 code_list = code['Code'].tolist()
 
